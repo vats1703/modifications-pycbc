@@ -204,7 +204,7 @@ def get_imrphenomx_modes(return_posneg=False, **params):
     for (l, m) in mode_array:
         params['mode_array'] = [(l, m)]
         laldict = _check_lal_pars(params)
-        hpos, hneg = lalsimulation.SimIMRPhenomXHMGenerateDFOneMode(
+        hpos, hneg = lalsimulation.SimIMRPhenomXHMGenerateFDOneMode(
             l, m,
             params['mass1']*lal.MSUN_SI,
             params['mass2']*lal.MSUN_SI,
@@ -233,8 +233,8 @@ _mode_waveform_td = {'NRSur7dq4': get_nrsur_modes,
 
 
 # Remove commented out once IMRPhenomX one mode is fixed
-_mode_waveform_fd = {'IMRPhenomXHM': get_imrphenomx_modes,
-                     'IMRPhenomXPHM' : get_imrphenomx_modes,
+_mode_waveform_fd = {'IMRPhenomXHM': get_imrphenomx_modes
+                     #'IMRPhenomXPHM' : get_imrphenomx_modes,
                     }
 
 
