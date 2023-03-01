@@ -181,7 +181,7 @@ def get_nrsur_modes(**params):
 get_nrsur_modes.__doc__ = _formatdocstr(get_nrsur_modes.__doc__)
 
 
-def _get_imrphenomx_modes(return_posneg=False, **params):
+def get_imrphenomx_modes(return_posneg=False, **params):
     """Generates ``IMRPhenomX[P]HM`` waveforms mode-by-mode.
 
     Currently does not work; just raises a ``NotImplementedError``.
@@ -233,8 +233,8 @@ _mode_waveform_td = {'NRSur7dq4': get_nrsur_modes,
 
 
 # Remove commented out once IMRPhenomX one mode is fixed
-_mode_waveform_fd = {#'IMRPhenomXHM': get_imrphenomhm_modes,
-                     #'IMRPhenomXPHM' : get_imrphenomhm_modes,
+_mode_waveform_fd = {'IMRPhenomXHM': get_imrphenomx_modes,
+                     'IMRPhenomXPHM' : get_imrphenomx_modes,
                     }
 
 
