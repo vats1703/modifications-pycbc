@@ -190,7 +190,7 @@ def _get_imrphenomx_modes(return_posneg=False, **params):
     # work. The issue is the OneMode function adds the +/- m modes together
     # automatically. Remove once this is fixed in lalsimulation, and/or I
     # figure out a reliable way to separate the +/-m modes.
-    raise NotImplementedError("Currently not implemented")
+    #raise NotImplementedError("Currently not implemented")
     approx = params['approximant']
     if not approx.startswith('IMRPhenomX'):
         raise ValueError("unsupported approximant")
@@ -204,7 +204,7 @@ def _get_imrphenomx_modes(return_posneg=False, **params):
     for (l, m) in mode_array:
         params['mode_array'] = [(l, m)]
         laldict = _check_lal_pars(params)
-        hpos, hneg = lalsimulation.SimIMRPhenomXPHMOneMode(
+        hpos, hneg = lalsimulation.SimIMRPhenomXHMGenerateDFOneMode(
             l, m,
             params['mass1']*lal.MSUN_SI,
             params['mass2']*lal.MSUN_SI,
