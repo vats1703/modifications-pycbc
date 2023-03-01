@@ -181,8 +181,53 @@ def get_nrsur_modes(**params):
 get_nrsur_modes.__doc__ = _formatdocstr(get_nrsur_modes.__doc__)
 
 
-def get_imrphenomx_modes(return_posneg=False, **params):
-    """Generates ``IMRPhenomX[P]HM`` waveforms mode-by-mode.
+def get_imrphenomxh_modes(return_posneg=False, **params):
+    """Generates ``IMRPhenomXHM` waveforms mode-by-mode. """
+
+    #Currently does not work; just raises a ``NotImplementedError``.
+    #"
+    # FIXME: raising not implemented error because this currently does not
+    # work. The issue is the OneMode function adds the +/- m modes together
+    # automatically. Remove once this is fixed in lalsimulation, and/or I
+    # figure out a reliable way to separate the +/-m modes.
+    #raise NotImplementedError("Currently not implemented")
+    approx = params['approximant']
+    if not approx.startswith('IMRPhenomX'):
+        raise ValueError("unsupported approximant")
+    mode_array = params.pop('mode_array', None)
+    if mode_array is None:
+        mode_array = default_modes(approx)
+    if 'f_final' not in params:
+        # setting to 0 will default to ringdown frequency
+        params['f_final'] = 0.
+    hlms = {}
+    for (l, m) in mode_array:
+        params['mode_array'] = [(l, m)]
+        laldict = _check_lal_pars(params)
+        hpos, hneg = lalsimulation.SimIMRPhenomXHMGenerateFDOneMode(
+            params['mass1']*lal.MSUN_SI,
+            params['mass2']*lal.MSUN_SI,
+            params['spin1z'],
+            params['spin2z'], l, m,
+            params['distance']*1e6*lal.PC_SI, params['coa_phase'],
+            params['delta_f'], params['f_lower'], params['f_final'],
+            params['f_ref'],
+            laldict)
+        hpos = FrequencySeries(hpos.data.data, delta_f=hpos.deltaF,
+                               epoch=hpos.epoch)
+        hneg = FrequencySeries(hneg.data.data, delta_f=hneg.deltaF,
+                               epoch=hneg.epoch)
+        if return_posneg:
+            hlms[l, m] = (hpos, hneg)
+        else:
+            # convert to ulm, vlm
+            ulm = 0.5 * (hpos + hneg.conj())
+            vlm = 0.5j * (hneg.conj() - hpos)
+            hlms[l, m] = (ulm, vlm)
+    return hlms
+
+def get_imrphenomxph_modes(return_posneg=False, **params):
+    """Generates ``IMRPhenomXPHM`` waveforms mode-by-mode.
 
     Currently does not work; just raises a ``NotImplementedError``.
     """
@@ -190,7 +235,7 @@ def get_imrphenomx_modes(return_posneg=False, **params):
     # work. The issue is the OneMode function adds the +/- m modes together
     # automatically. Remove once this is fixed in lalsimulation, and/or I
     # figure out a reliable way to separate the +/-m modes.
-    #raise NotImplementedError("Currently not implemented")
+    raise NotImplementedError("Currently not implemented")
     approx = params['approximant']
     if not approx.startswith('IMRPhenomX'):
         raise ValueError("unsupported approximant")
@@ -233,7 +278,7 @@ _mode_waveform_td = {'NRSur7dq4': get_nrsur_modes,
 
 
 # Remove commented out once IMRPhenomX one mode is fixed
-_mode_waveform_fd = {'IMRPhenomXHM': get_imrphenomx_modes
+_mode_waveform_fd = {'IMRPhenomXHM': get_imrphenomxh_modes
                      #'IMRPhenomXPHM' : get_imrphenomx_modes,
                     }
 
