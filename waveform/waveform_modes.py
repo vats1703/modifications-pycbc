@@ -19,6 +19,8 @@
 from string import Formatter
 import lal
 import lalsimulation
+from pycbc import pnutils
+
 
 from pycbc.types import (TimeSeries, FrequencySeries)
 from .waveform import (props, _check_lal_pars, check_args)
@@ -204,26 +206,28 @@ def get_imrphenomxh_modes(return_posneg=False, **params):
     for (l, m) in mode_array:
         params['mode_array'] = [(l, m)]
         laldict = _check_lal_pars(params)
-        hpos, hneg = lalsimulation.SimIMRPhenomXHMGenerateFDOneMode(
-            params['mass1']*lal.MSUN_SI,
-            params['mass2']*lal.MSUN_SI,
-            params['spin1z'],
-            params['spin2z'], l, m,
-            params['distance']*1e6*lal.PC_SI, params['coa_phase'],
-            params['delta_f'], params['f_lower'], params['f_final'],
-            params['f_ref'],
+        hlm = lalsimulation.SimIMRPhenomXHMGenerateFDOneMode(
+            float(pnutils.solar_mass_to_kg(params['mass1'])),
+            float(pnutils.solar_mass_to_kg(params['mass2'])),
+            float(params['spin1z']),
+            float(params['spin2z']), l, m,
+            pnutils.megaparsecs_to_meters(float(params['distance'])),
+            params['f_lower'], params['f_final'], params['delta_f'],
+            params['coa_phase'], params['f_ref'],
             laldict)
-        hpos = FrequencySeries(hpos.data.data, delta_f=hpos.deltaF,
+        hlm = FrequencySeries(hlm.data.data, delta_f=hlm.deltaF,
                                epoch=hpos.epoch)
-        hneg = FrequencySeries(hneg.data.data, delta_f=hneg.deltaF,
-                               epoch=hneg.epoch)
-        if return_posneg:
-            hlms[l, m] = (hpos, hneg)
-        else:
+        hplm = 0.5 * hlm  # Plus strain, needs to be multiplied by SpherHarmonic (-1)**(l) already included in Lalfunction
+        hclm = - 0.5j * hlm # Cros strain, needs to be multiplied by SpherHarmonic (-1)**(l) already included in Lalfunction
+        #hneg = FrequencySeries(hneg.data.data, delta_f=hneg.deltaF,
+                               #epoch=hneg.epoch)
+        #if return_posneg:
+        hlms[l, m] = (hplm,hclm)
+        #else:
             # convert to ulm, vlm
-            ulm = 0.5 * (hpos + hneg.conj())
-            vlm = 0.5j * (hneg.conj() - hpos)
-            hlms[l, m] = (ulm, vlm)
+         #   ulm = 0.5 * (hpos + hneg.conj())
+         #   vlm = 0.5j * (hneg.conj() - hpos)
+         #   hlms[l, m] = (ulm, vlm)
     return hlms
 
 def get_imrphenomxph_modes(return_posneg=False, **params):
@@ -279,7 +283,7 @@ _mode_waveform_td = {'NRSur7dq4': get_nrsur_modes,
 
 # Remove commented out once IMRPhenomX one mode is fixed
 _mode_waveform_fd = {'IMRPhenomXHM': get_imrphenomxh_modes
-                     #'IMRPhenomXPHM' : get_imrphenomx_modes,
+                     #'IMRPhenomXPHM' : get_imrphenomxph_modes,
                     }
 
 
