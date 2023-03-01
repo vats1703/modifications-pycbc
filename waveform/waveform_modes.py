@@ -216,7 +216,7 @@ def get_imrphenomxh_modes(return_posneg=False, **params):
             params['coa_phase'], params['f_ref'],
             laldict)
         hlm = FrequencySeries(hlm.data.data, delta_f=hlm.deltaF,
-                               epoch=hpos.epoch)
+                               epoch=hlm.epoch)
         hplm = 0.5 * hlm  # Plus strain, needs to be multiplied by SpherHarmonic (-1)**(l) already included in Lalfunction
         hclm = - 0.5j * hlm # Cros strain, needs to be multiplied by SpherHarmonic (-1)**(l) already included in Lalfunction
         #hneg = FrequencySeries(hneg.data.data, delta_f=hneg.deltaF,
