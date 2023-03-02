@@ -210,7 +210,9 @@ def get_imrphenomxh_modes(return_posneg=False, **params):
         hlm = FrequencySeries(hlm.data.data, delta_f=hlm.deltaF,
                                epoch=hlm.epoch)
         hplm = 0.5 * hlm  # Plus strain, needs to be multiplied by SpherHarmonic. (-1)**(l) factor ALREADY included in LAL FDOneMode function
-        hclm = - 0.5j * hlm # Cros strain, needs to be multiplied by SpherHarmonic. (-1)**(l) factor ALREADY included in LAL FDOneMode function
+        hclm =  0.5j * hlm # Cros strain, needs to be multiplied by SpherHarmonic. (-1)**(l) factor ALREADY included in LAL FDOneMode function
+        if (m > 0):
+            hclm *= -1
         hlms[l, m] = (hplm,hclm)
     return hlms
 
