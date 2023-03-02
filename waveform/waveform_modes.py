@@ -185,14 +185,6 @@ get_nrsur_modes.__doc__ = _formatdocstr(get_nrsur_modes.__doc__)
 
 def get_imrphenomxh_modes(return_posneg=False, **params):
     """Generates ``IMRPhenomXHM` waveforms mode-by-mode. """
-
-    #Currently does not work; just raises a ``NotImplementedError``.
-    #"
-    # FIXME: raising not implemented error because this currently does not
-    # work. The issue is the OneMode function adds the +/- m modes together
-    # automatically. Remove once this is fixed in lalsimulation, and/or I
-    # figure out a reliable way to separate the +/-m modes.
-    #raise NotImplementedError("Currently not implemented")
     approx = params['approximant']
     if not approx.startswith('IMRPhenomX'):
         raise ValueError("unsupported approximant")
@@ -217,17 +209,9 @@ def get_imrphenomxh_modes(return_posneg=False, **params):
             laldict)
         hlm = FrequencySeries(hlm.data.data, delta_f=hlm.deltaF,
                                epoch=hlm.epoch)
-        hplm = 0.5 * hlm  # Plus strain, needs to be multiplied by SpherHarmonic (-1)**(l) already included in Lalfunction
-        hclm = - 0.5j * hlm # Cros strain, needs to be multiplied by SpherHarmonic (-1)**(l) already included in Lalfunction
-        #hneg = FrequencySeries(hneg.data.data, delta_f=hneg.deltaF,
-                               #epoch=hneg.epoch)
-        #if return_posneg:
+        hplm = 0.5 * hlm  # Plus strain, needs to be multiplied by SpherHarmonic. (-1)**(l) factor ALREADY included in LAL FDOneMode function
+        hclm = - 0.5j * hlm # Cros strain, needs to be multiplied by SpherHarmonic. (-1)**(l) factor ALREADY included in LAL FDOneMode function
         hlms[l, m] = (hplm,hclm)
-        #else:
-            # convert to ulm, vlm
-         #   ulm = 0.5 * (hpos + hneg.conj())
-         #   vlm = 0.5j * (hneg.conj() - hpos)
-         #   hlms[l, m] = (ulm, vlm)
     return hlms
 
 def get_imrphenomxph_modes(return_posneg=False, **params):
