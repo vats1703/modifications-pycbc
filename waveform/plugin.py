@@ -3,7 +3,8 @@
 
 
 def add_custom_waveform(approximant, function, domain,
-                        sequence=False, force=False):
+                        sequence=False, has_det_response=False,
+                        force=False,multi_mode= False):
     """ Make custom waveform available to pycbc
 
     Parameters
@@ -18,17 +19,28 @@ def add_custom_waveform(approximant, function, domain,
         Function evaluates waveform at only chosen points (instead of a
         equal-spaced grid).
     """
-    from pycbc.waveform.waveform import cpu_fd, cpu_td, fd_sequence
+    from pycbc.waveform.waveform import (cpu_fd, cpu_td, fd_sequence,
+                                         fd_det, fd_det_sequence, _mode_waveform_fd )
 
     used = RuntimeError("Can't load plugin waveform {}, the name is"
                         " already in use.".format(approximant))
 
     if domain == 'time':
-        if not force and (approximant in cpu_td):
-            raise used
-        cpu_td[approximant] = function
+        if multi_mode:
+            if not force and (approximant in _mode_waveform_td):
+                raise used
+            _mode_waveform_td[approximant] = function
+        else:
+            if not force and (approximant in cpu_td):
+                raise used
+            cpu_td[approximant] = function
+            
     elif domain == 'frequency':
-        if sequence:
+        if multi_mode:
+            if not force and (approximant in _mode_waveform_fd):
+                raise used 
+            _mode_waveform_fd[approximant] = function
+        elif sequence:
             if not force and (approximant in fd_sequence):
                 raise used
             fd_sequence[approximant] = function
